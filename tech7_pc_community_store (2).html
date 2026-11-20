@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech7 - PC Community Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121217',
+                        cardBg: '#1a1a24',
+                        accent: '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Inter & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121217;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27273a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b5cf6;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-gray-100 min-h-screen selection:bg-purple-500 selection:text-white flex flex-col justify-between">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-purple-600 text-white px-5 py-3 rounded-xl shadow-2xl transform translate-y-32 transition-transform duration-300 flex items-center space-x-3">
+        <i class="fa-solid fa-circle-check text-lg"></i>
+        <span id="toastMsg" class="font-medium text-sm">Aksi berhasil!</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-[#16161d] border-b border-zinc-800 sticky top-0 z-40 px-4 lg:px-12 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <!-- Logo & Slogan -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/30">
+                    <i class="fa-solid fa-microchip text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-tight text-white">Tech7</span>
+                    <span class="hidden sm:inline-block ml-2 text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20 font-medium">
+                        made by pc community, for pc user
+                    </span>
+                </div>
+            </div>
+
+            <!-- Desktop Links -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-300">
+                <button onclick="switchTab('home')" class="nav-btn hover:text-purple-400 transition" data-tab="home">Home</button>
+                <button onclick="switchTab('store')" class="nav-btn hover:text-purple-400 transition" data-tab="store">Store</button>
+                <button onclick="switchTab('compare')" class="nav-btn hover:text-purple-400 transition" data-tab="compare">CPU Benchmark</button>
+                <button onclick="switchTab('sell')" class="nav-btn hover:text-purple-400 transition" data-tab="sell">Sell Item</button>
+                <button onclick="switchTab('orders')" class="nav-btn hover:text-purple-400 transition" data-tab="orders">Orders</button>
+                <button onclick="switchTab('cs')" class="nav-btn hover:text-purple-400 transition" data-tab="cs">Customer Service</button>
+            </div>
+
+            <!-- Right Actions (Search, Chat History, Wishlist, Cart, Auth) -->
+            <div class="flex items-center space-x-3">
+                <div class="relative hidden lg:block w-48 xl:w-60">
+                    <input type="text" id="searchInput" placeholder="Cari produk PC..." oninput="handleSearch(this.value)"
+                        class="w-full bg-[#1e1e28] border border-zinc-700/80 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-purple-500 transition">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                </div>
+
+                <!-- Chat History Button -->
+                <button onclick="openChatHistoryModal()" class="p-2.5 bg-[#1e1e28] hover:bg-zinc-800 rounded-xl text-gray-300 relative transition" title="Riwayat Chat Penjual">
+                    <i class="fa-solid fa-comments text-sm"></i>
+                    <span id="chatBadge" class="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+
+                <!-- Wishlist Button -->
+                <button onclick="switchTab('wishlist')" class="p-2.5 bg-[#1e1e28] hover:bg-zinc-800 rounded-xl text-gray-300 relative transition" title="Wishlist">
+                    <i class="fa-solid fa-heart text-sm"></i>
+                    <span id="wishlistBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+
+                <!-- Cart Button -->
+                <button onclick="switchTab('cart')" class="p-2.5 bg-[#1e1e28] hover:bg-zinc-800 rounded-xl text-gray-300 relative transition" title="Cart">
+                    <i class="fa-solid fa-shopping-cart text-sm"></i>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+
+                <div id="authNavArea">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 lg:px-12 py-8 flex-1 w-full">
+
+        <!-- TAB: HOME -->
+        <section id="tab-home" class="space-y-10">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl bg-gradient-to-r from-[#1a1a26] via-[#221f33] to-[#2b1f3d] p-8 md:p-12 overflow-hidden border border-zinc-700/50 shadow-2xl flex flex-col md:flex-row items-center justify-between">
+                <div class="z-10 max-w-xl">
+                    <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 inline-block border border-purple-500/30">
+                        Tech7 Marketplace
+                    </span>
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+                        ENJOY NEXT LEVEL OF <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">PC HARDWARE TRADING</span>
+                    </h1>
+                    <p class="text-gray-400 text-sm md:text-base mb-6">Made by PC Community, For PC User. Jual beli chipset Intel, AMD & GPU Nvidia terpercaya.</p>
+                    <div class="flex space-x-4">
+                        <button onclick="switchTab('store')" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition flex items-center space-x-2">
+                            <span>Explore Store</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button onclick="switchTab('compare')" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold text-sm border border-zinc-700 transition">
+                            Compare CPU
+                        </button>
+                    </div>
+                </div>
+                <div class="z-10 mt-8 md:mt-0 text-purple-500/40">
+                    <i class="fa-solid fa-microchip text-9xl md:text-[180px] drop-shadow-[0_0_35px_rgba(168,85,247,0.3)]"></i>
+                </div>
+                <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-purple-600/10 blur-[100px] rounded-full pointer-events-none"></div>
+            </div>
+
+            <!-- Categories Quick Grid -->
+            <div>
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center justify-between">
+                    <span>Popular Categories</span>
+                    <button onclick="switchTab('store')" class="text-xs text-purple-400 hover:underline">View All</button>
+                </h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div onclick="filterByCategory('CPU', 'Intel')" class="bg-gradient-to-br from-blue-600/80 to-blue-800/80 p-5 rounded-2xl cursor-pointer hover:-translate-y-1 transition shadow-lg text-white">
+                        <i class="fa-solid fa-microchip text-2xl mb-3"></i>
+                        <h3 class="font-bold text-base">Intel CPU</h3>
+                        <p class="text-xs text-blue-200 mt-1">Core i3, i5, i7, i9</p>
+                    </div>
+                    <div onclick="filterByCategory('CPU', 'AMD')" class="bg-gradient-to-br from-red-600/80 to-red-800/80 p-5 rounded-2xl cursor-pointer hover:-translate-y-1 transition shadow-lg text-white">
+                        <i class="fa-solid fa-bolt text-2xl mb-3"></i>
+                        <h3 class="font-bold text-base">AMD Ryzen</h3>
+                        <p class="text-xs text-red-200 mt-1">Ryzen 3, 5, 7, 9</p>
+                    </div>
+                    <div onclick="filterByCategory('GPU', 'Nvidia')" class="bg-gradient-to-br from-green-600/80 to-emerald-800/80 p-5 rounded-2xl cursor-pointer hover:-translate-y-1 transition shadow-lg text-white">
+                        <i class="fa-solid fa-display text-2xl mb-3"></i>
+                        <h3 class="font-bold text-base">Nvidia RTX</h3>
+                        <p class="text-xs text-green-200 mt-1">GeForce RTX 30/40</p>
+                    </div>
+                    <div onclick="filterByCondition('New')" class="bg-gradient-to-br from-purple-600/80 to-indigo-800/80 p-5 rounded-2xl cursor-pointer hover:-translate-y-1 transition shadow-lg text-white">
+                        <i class="fa-solid fa-box-open text-2xl mb-3"></i>
+                        <h3 class="font-bold text-base">Brand New</h3>
+                        <p class="text-xs text-purple-200 mt-1">Barang Baru Resmi</p>
+                    </div>
+                    <div onclick="filterByCondition('Used')" class="bg-gradient-to-br from-amber-600/80 to-orange-800/80 p-5 rounded-2xl cursor-pointer hover:-translate-y-1 transition shadow-lg text-white">
+                        <i class="fa-solid fa-rotate-left text-2xl mb-3"></i>
+                        <h3 class="font-bold text-base">Second / Bekas</h3>
+                        <p class="text-xs text-orange-200 mt-1">Mulus & Bergaransi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For You / Feed -->
+            <div>
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                    <i class="fa-solid fa-fire text-purple-400 mr-2"></i> For You (Community Uploads)
+                </h2>
+                <div id="forYouGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: STORE -->
+        <section id="tab-store" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Filters Sidebar -->
+                <div class="w-full md:w-72 bg-cardBg p-6 rounded-2xl border border-zinc-800 h-fit space-y-5">
+                    <h3 class="font-bold text-white text-base flex items-center justify-between">
+                        <span><i class="fa-solid fa-filter mr-2 text-purple-400"></i> Filters</span>
+                        <button onclick="resetFilters()" class="text-xs text-purple-400 hover:underline">Reset</button>
+                    </h3>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2">Condition</label>
+                        <select id="filterCondition" onchange="applyFilters()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-2.5 text-xs text-white">
+                            <option value="">All Conditions</option>
+                            <option value="New">New (Baru)</option>
+                            <option value="Used">Used (Bekas)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2">Hardware Type</label>
+                        <select id="filterType" onchange="applyFilters()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-2.5 text-xs text-white">
+                            <option value="">All Types</option>
+                            <option value="CPU">CPU (Chipset)</option>
+                            <option value="GPU">GPU (Graphics)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2">Brand</label>
+                        <select id="filterBrand" onchange="applyFilters()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-2.5 text-xs text-white">
+                            <option value="">All Brands</option>
+                            <option value="Intel">Intel</option>
+                            <option value="AMD">AMD</option>
+                            <option value="Nvidia">Nvidia</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2">Region / Location</label>
+                        <select id="filterLocation" onchange="applyFilters()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-2.5 text-xs text-white">
+                            <option value="">All Regions</option>
+                            <option value="Local">Local (Indonesia)</option>
+                            <option value="Overseas">Overseas (Luar Negeri)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2">Min. Store Rating</label>
+                        <input type="number" id="filterRating" min="0" max="5" step="0.5" value="0" oninput="applyFilters()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-2.5 text-xs text-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-2">Max Budget (IDR)</label>
+                        <input type="number" id="filterBudget" placeholder="e.g. 15000000" oninput="applyFilters()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-2.5 text-xs text-white">
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="flex-1 space-y-4">
+                    <div class="flex justify-between items-center bg-cardBg p-4 rounded-2xl border border-zinc-800 text-xs text-gray-400">
+                        <span id="storeCount">Showing items</span>
+                        <span class="text-purple-400 font-medium">Sorted by relevance</span>
+                    </div>
+                    <div id="storeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: COMPARE CPU -->
+        <section id="tab-compare" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-white mb-2">CPU Benchmark & Comparison</h2>
+                <p class="text-gray-400 text-sm">Compare Intel & AMD processors based on cores, threads, raw performance, power consumption, and integrated graphics.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- CPU 1 -->
+                <div class="bg-cardBg p-6 rounded-2xl border border-zinc-800 shadow-xl space-y-4">
+                    <label class="block text-xs font-semibold text-gray-400">Select Processor #1</label>
+                    <select id="compare1" onchange="updateComparison()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                        <option value="">-- Choose CPU --</option>
+                    </select>
+                    <div id="details1" class="space-y-3 pt-2 text-sm text-gray-300">
+                        <p class="text-zinc-500 text-xs text-center py-10">Select a CPU to view benchmark data</p>
+                    </div>
+                </div>
+                <!-- CPU 2 -->
+                <div class="bg-cardBg p-6 rounded-2xl border border-zinc-800 shadow-xl space-y-4">
+                    <label class="block text-xs font-semibold text-gray-400">Select Processor #2</label>
+                    <select id="compare2" onchange="updateComparison()" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                        <option value="">-- Choose CPU --</option>
+                    </select>
+                    <div id="details2" class="space-y-3 pt-2 text-sm text-gray-300">
+                        <p class="text-zinc-500 text-xs text-center py-10">Select a CPU to view benchmark data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: SELL ITEM -->
+        <section id="tab-sell" class="hidden max-w-2xl mx-auto">
+            <div class="bg-cardBg p-8 rounded-3xl border border-zinc-800 shadow-2xl space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Sell Your Hardware</h2>
+                    <p class="text-xs text-gray-400">List your CPU or GPU online for the Tech7 community.</p>
+                </div>
+                <form id="sellForm" onsubmit="handleSellSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Product Name</label>
+                        <input type="text" id="sellName" required placeholder="e.g. RTX 3060 Ti / Ryzen 5 5600X" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white focus:border-purple-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Hardware Type</label>
+                            <select id="sellType" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                                <option value="CPU">CPU (Chipset)</option>
+                                <option value="GPU">GPU (Graphics Card)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Condition</label>
+                            <select id="sellCondition" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                                <option value="New">New (Baru)</option>
+                                <option value="Used">Used (Bekas)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Brand</label>
+                            <input type="text" id="sellBrand" required placeholder="Intel / AMD / Nvidia" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white focus:border-purple-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Region</label>
+                            <select id="sellLocation" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                                <option value="Local">Local (Indonesia)</option>
+                                <option value="Overseas">Overseas (Luar Negeri)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Price (IDR)</label>
+                        <input type="number" id="sellPrice" required placeholder="3500000" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white focus:border-purple-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Upload Gambar Produk (Dari Storage)</label>
+                        <input type="file" id="sellImageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                        
+                        <div id="uploadBox" onclick="document.getElementById('sellImageFile').click()" class="border-2 border-dashed border-zinc-700 hover:border-purple-500 bg-[#121217] rounded-xl p-5 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2 group">
+                            <div class="w-10 h-10 bg-purple-600/20 text-purple-400 rounded-xl flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-folder-open text-lg"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-300">Cari dari Storage / Pilih File Gambar</span>
+                            <span class="text-[10px] text-gray-500">Format: JPG, PNG, WEBP, GIF (Maks. 5MB)</span>
+                        </div>
+
+                        <div id="sellImagePreviewContainer" class="hidden relative mt-3 rounded-xl overflow-hidden border border-zinc-700 bg-[#121217] p-2 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img id="sellImagePreview" src="" class="w-14 h-14 object-cover rounded-lg bg-zinc-800">
+                                <div class="text-xs">
+                                    <p id="sellImageFileName" class="text-white font-medium truncate max-w-[180px] sm:max-w-[260px]">gambar.jpg</p>
+                                    <p class="text-[10px] text-green-400 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Siap diposting</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="clearUploadedImage()" class="p-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-lg transition text-xs flex items-center space-x-1">
+                                <i class="fa-solid fa-trash"></i>
+                                <span class="hidden sm:inline">Hapus</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Description</label>
+                        <textarea id="sellDesc" required rows="3" placeholder="Condition details, warranty info..." class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white focus:border-purple-500 outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition">
+                        Post Product Online
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB: CART & CHECKOUT -->
+        <section id="tab-cart" class="hidden max-w-4xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-white">Shopping Cart</h2>
+            <div id="cartItemsList" class="space-y-4">
+                <!-- Cart items populated by JS -->
+            </div>
+            <div id="cartActions" class="flex justify-end hidden">
+                <button onclick="proceedToCheckout()" class="px-8 py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition">
+                    Proceed to Checkout <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB: CHECKOUT FORM -->
+        <section id="tab-checkout" class="hidden max-w-2xl mx-auto">
+            <div class="bg-cardBg p-8 rounded-3xl border border-zinc-800 shadow-2xl space-y-6">
+                <h2 class="text-2xl font-bold text-white mb-1">Secure Checkout</h2>
+                <form onsubmit="completeCheckout(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Delivery Address</label>
+                        <textarea id="checkoutAddress" required rows="2" placeholder="Street address, city, postal code..." class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Shipping Courier</label>
+                        <select id="checkoutShipping" required class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Payment Method</label>
+                        <select id="checkoutPayment" required class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div id="checkoutSummaryBox" class="bg-[#121217] p-4 rounded-xl border border-zinc-800 text-xs space-y-2 text-gray-300">
+                        <!-- Summary calc -->
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="switchTab('cart')" class="w-1/2 py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold text-sm transition">Back</button>
+                        <button type="submit" class="w-1/2 py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition">Pay & Place Order</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB: ORDERS & INVOICES -->
+        <section id="tab-orders" class="hidden max-w-4xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-white">Orders & Invoices</h2>
+            <div id="ordersList" class="space-y-4">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- TAB: WISHLIST -->
+        <section id="tab-wishlist" class="hidden max-w-5xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+                <i class="fa-solid fa-heart text-red-500 mr-2"></i> Your Wishlist
+            </h2>
+            <div id="wishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- TAB: CUSTOMER SERVICE -->
+        <section id="tab-cs" class="hidden max-w-2xl mx-auto">
+            <div class="bg-cardBg p-8 rounded-3xl border border-zinc-800 shadow-2xl space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1"><i class="fa-solid fa-headset mr-2 text-purple-400"></i> Customer Service</h2>
+                    <p class="text-xs text-gray-400">Kirim keluhan atau pertanyaan. Pesan ini akan otomatis terkirim ke email admin Tech7.</p>
+                </div>
+                <form onsubmit="submitCS(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Your Email</label>
+                        <input type="email" id="csUserEmail" disabled class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-gray-400 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Subject</label>
+                        <input type="text" id="csSubject" required placeholder="e.g. Masalah Pengiriman / Pertanyaan Garansi" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Message / Complaint</label>
+                        <textarea id="csMessage" required rows="4" placeholder="Tuliskan detail keluhan..." class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition">
+                        Send Email to Admin
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB: PROFILE -->
+        <section id="tab-profile" class="hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-cardBg p-8 rounded-3xl border border-zinc-800 shadow-xl flex items-center space-x-6">
+                <div id="profileAvatar" class="w-20 h-20 bg-purple-600 rounded-2xl flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-purple-600/30">
+                    U
+                </div>
+                <div class="space-y-1">
+                    <h2 id="profileEmail" class="text-2xl font-bold text-white">user@domain.com</h2>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-gray-400 pt-1">
+                        <span id="profileRatingBadge" class="bg-purple-500/10 text-purple-300 px-3 py-1 rounded-full text-xs font-semibold border border-purple-500/20">
+                            <i class="fa-solid fa-star text-yellow-400 mr-1"></i> Belum ada review
+                        </span>
+                        <span class="text-gray-300 font-medium"><i class="fa-solid fa-box text-purple-400 mr-1"></i> <span id="profileItemCount">0</span> Items Listed</span>
+                    </div>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-white">Your Listed Products</h3>
+            <div id="profileProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#16161d] border-t border-zinc-800 py-6 px-4 lg:px-12 text-center text-xs text-gray-500 mt-auto">
+        <p>© 2026 Tech7 - PC Community Store. Made by PC Community, For PC User.</p>
+    </footer>
+
+    <!-- MODAL 1: PUBLIC SELLER PROFILE MODAL -->
+    <div id="publicProfileModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl border border-zinc-700 max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <!-- Header -->
+            <div class="bg-[#121217] p-6 border-b border-zinc-800 flex items-center justify-between relative">
+                <button onclick="closePublicProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                <div class="flex items-center space-x-5">
+                    <div id="pubProfAvatar" class="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-purple-600/30">
+                        P
+                    </div>
+                    <div>
+                        <h3 id="pubProfName" class="text-xl font-bold text-white flex items-center">
+                            Nama Penjual
+                        </h3>
+                        <div class="flex items-center space-x-3 text-xs text-gray-400 mt-1">
+                            <span id="pubProfRating" class="bg-purple-500/10 text-purple-300 px-2.5 py-0.5 rounded-full font-semibold border border-purple-500/20">
+                                ⭐ 5.0
+                            </span>
+                            <span><i class="fa-solid fa-box text-purple-400 mr-1"></i> <span id="pubProfCount">0</span> Barang Dijual</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products List of this seller -->
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                <h4 class="text-sm font-bold text-gray-300 uppercase tracking-wider">Katalog Produk Penjual Ini</h4>
+                <div id="pubProfProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Seller products -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CUSTOM DELETE CONFIRMATION POPUP -->
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-md p-6 rounded-3xl border border-zinc-700 shadow-2xl text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto text-3xl border border-red-500/30">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-white mb-1">Hapus Produk Ini?</h3>
+                <p class="text-xs text-gray-400">Apakah Anda yakin ingin menghapus produk <strong id="deleteProductName" class="text-white"></strong> secara permanen?</p>
+                <p class="text-[11px] text-red-400 mt-1">Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteConfirmModal()" class="w-1/2 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold text-xs transition border border-zinc-700">
+                    Batal
+                </button>
+                <button onclick="confirmDeleteProduct()" class="w-1/2 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs shadow-lg shadow-red-600/30 transition">
+                    Hapus Produk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: EDIT PRODUCT MODAL -->
+    <div id="editProductModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-2xl p-8 rounded-3xl border border-zinc-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h2 class="text-2xl font-bold text-white mb-1">Edit Produk Hardware</h2>
+            <p class="text-xs text-gray-400 mb-6">Perbarui detail produk atau ganti foto dari storage perangkat Anda.</p>
+
+            <form onsubmit="handleEditSubmit(event)" class="space-y-4">
+                <input type="hidden" id="editProductId">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Nama Produk</label>
+                    <input type="text" id="editName" required class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Hardware Type</label>
+                        <select id="editType" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                            <option value="CPU">CPU (Chipset)</option>
+                            <option value="GPU">GPU (Graphics Card)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Kondisi</label>
+                        <select id="editCondition" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                            <option value="New">New (Baru)</option>
+                            <option value="Used">Used (Bekas)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Brand</label>
+                        <input type="text" id="editBrand" required class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Region / Location</label>
+                        <select id="editLocation" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white">
+                            <option value="Local">Local (Indonesia)</option>
+                            <option value="Overseas">Overseas (Luar Negeri)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Harga (IDR)</label>
+                    <input type="number" id="editPrice" required class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Ganti Gambar (Dari Storage)</label>
+                    <input type="file" id="editImageFile" accept="image/*" class="hidden" onchange="handleEditImageUpload(event)">
+                    <div onclick="document.getElementById('editImageFile').click()" class="border-2 border-dashed border-zinc-700 hover:border-purple-500 bg-[#121217] rounded-xl p-4 text-center cursor-pointer transition flex items-center justify-center space-x-3">
+                        <i class="fa-solid fa-folder-open text-purple-400 text-lg"></i>
+                        <span class="text-xs font-semibold text-gray-300">Pilih Gambar Baru dari Storage</span>
+                    </div>
+                    <div id="editImagePreviewContainer" class="mt-3 flex items-center space-x-3 bg-[#121217] p-2 rounded-xl border border-zinc-800">
+                        <img id="editImagePreview" src="" class="w-14 h-14 object-cover rounded-lg bg-zinc-800">
+                        <span id="editImageFileName" class="text-xs text-gray-300 truncate">Gambar Produk</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Deskripsi</label>
+                    <textarea id="editDesc" required rows="3" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500"></textarea>
+                </div>
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="closeEditModal()" class="w-1/2 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold text-sm transition">Batal</button>
+                    <button type="submit" class="w-1/2 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: RIWAYAT CHAT (CHAT HISTORY MODAL) -->
+    <div id="chatHistoryModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-2xl rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-zinc-700 max-h-[85vh] animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="bg-[#121217] p-5 border-b border-zinc-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-purple-600/20 text-purple-400 rounded-xl flex items-center justify-center font-bold text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Riwayat Obrolan / Chat Penjual</h3>
+                        <p class="text-xs text-gray-400">Daftar percakapan aktif Anda dengan penjual komunitas</p>
+                    </div>
+                </div>
+                <button onclick="closeChatHistoryModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Chat History Content List -->
+            <div id="chatHistoryList" class="p-6 overflow-y-auto space-y-4 flex-1">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: LIVE CHAT PENJUAL (SELLER CHAT MODAL) -->
+    <div id="chatModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-lg rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-zinc-700 h-[520px] animate-in fade-in zoom-in-95 duration-200">
+            <!-- Chat Header -->
+            <div class="bg-[#121217] p-4 border-b border-zinc-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="backToHistoryFromChat()" class="text-gray-400 hover:text-white mr-1" title="Kembali ke Riwayat Chat">
+                        <i class="fa-solid fa-chevron-left text-sm"></i>
+                    </button>
+                    <div class="w-10 h-10 bg-purple-600/20 text-purple-400 rounded-xl flex items-center justify-center font-bold text-lg border border-purple-500/30">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 id="chatSellerName" class="font-bold text-white text-sm cursor-pointer hover:text-purple-400 transition" title="Lihat Profil Penjual">Penjual</h3>
+                            <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-semibold">Online</span>
+                        </div>
+                        <p id="chatProductSubtitle" class="text-xs text-gray-400 truncate max-w-[220px]">Produk: -</p>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Product Summary Bar -->
+            <div id="chatProductBar" class="bg-[#181824] px-4 py-2.5 border-b border-zinc-800 flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-3 truncate">
+                    <img id="chatProductImg" src="" class="w-8 h-8 rounded-lg object-cover bg-zinc-800">
+                    <span id="chatProductName" class="text-gray-200 font-medium truncate">Nama Produk</span>
+                </div>
+                <span id="chatProductPrice" class="text-purple-400 font-bold whitespace-nowrap ml-2">Rp 0</span>
+            </div>
+
+            <!-- Chat Messages Box -->
+            <div id="chatMessagesBox" class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#121217]">
+                <!-- Messages populated dynamically -->
+            </div>
+
+            <!-- Chat Input Form -->
+            <form onsubmit="handleSendChatMessage(event)" class="bg-[#16161d] p-3 border-t border-zinc-800 flex items-center space-x-2">
+                <input type="text" id="chatInput" placeholder="Tulis pesan ke penjual..." required
+                    class="flex-1 bg-[#121217] border border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-purple-500 transition">
+                <button type="submit" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs shadow-lg shadow-purple-600/30 transition flex items-center space-x-1.5">
+                    <span>Kirim</span>
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 6: PRODUCT DETAIL MODAL -->
+    <div id="productModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-3xl rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl border border-zinc-700 relative animate-in fade-in zoom-in-95 duration-200">
+            <div class="w-full md:w-1/2 bg-[#121217] relative min-h-[300px]">
+                <img id="modalImg" src="" alt="product" class="absolute inset-0 w-full h-full object-cover">
+            </div>
+            <div class="w-full md:w-1/2 p-8 flex flex-col justify-between relative">
+                <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <div>
+                    <div id="modalTags" class="flex items-center space-x-2 mb-3">
+                        <!-- tags -->
+                    </div>
+                    <h2 id="modalTitle" class="text-2xl font-bold text-white mb-2">Product Name</h2>
+                    <div id="modalPrice" class="text-3xl font-extrabold text-purple-400 mb-4">Rp 0</div>
+                    <div class="bg-[#121217] p-4 rounded-xl border border-zinc-800 text-xs text-gray-300 space-y-2 mb-6">
+                        <p id="modalDesc">Description here...</p>
+                        <p class="text-[11px] text-gray-400 pt-2 border-t border-zinc-800">
+                            Seller: <span id="modalSeller" class="text-white font-semibold">User</span> (<span id="modalRating">Belum ada review</span>)
+                        </p>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="contactSeller()" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold text-xs transition border border-zinc-700 flex items-center justify-center">
+                        <i class="fa-solid fa-comment mr-2"></i> Hubungi Penjual
+                    </button>
+                    <button id="modalAddToCartBtn" onclick="addToCartFromModal()" class="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center">
+                        <i class="fa-solid fa-cart-plus mr-2"></i> Tambah Keranjang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7: AUTH MODAL -->
+    <div id="authModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-cardBg w-full max-w-md p-8 rounded-3xl border border-zinc-700 shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h2 id="authModalTitle" class="text-2xl font-bold text-white mb-1 text-center">Login ke Akun Tech7</h2>
+            <p class="text-xs text-gray-400 text-center mb-6">Wajib Alamat Email Valid (Penyimpanan Akun Terpisah)</p>
+
+            <div id="authErrorBox" class="hidden mb-4 p-3 bg-red-500/20 border border-red-500/40 rounded-xl text-red-300 text-xs flex items-center space-x-2">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="authErrorText">Pesan Error</span>
+            </div>
+
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="registerUsernameGroup" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Username / Nama Pengguna</label>
+                    <input type="text" id="authUsername" placeholder="pcbuilder99" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Alamat Email (Wajib Valid)</label>
+                    <input type="email" id="authEmail" required placeholder="contoh: nama@domain.com" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Password</label>
+                    <input type="password" id="authPassword" required minlength="6" placeholder="•••••••• (Min. 6 Karakter)" class="w-full bg-[#121217] border border-zinc-700 rounded-xl p-3 text-sm text-white outline-none focus:border-purple-500">
+                </div>
+                <button type="submit" id="authSubmitBtn" class="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition">
+                    Masuk ke Akun
+                </button>
+            </form>
+
+            <p class="text-center text-xs text-gray-400 mt-6">
+                <span id="authToggleText">Belum punya akun?</span>
+                <button type="button" onclick="toggleAuthMode()" class="text-purple-400 font-bold underline ml-1">Daftar Sekarang</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- MOCK DATABASE & CPU BENCHMARKS ---
+        const CPUS = [
+            { id: 'c1', name: 'Intel Core i9-14900K', brand: 'Intel', cores: 24, threads: 32, baseClock: '3.2 GHz', boostClock: '6.0 GHz', tdp: '125W', igpu: 'UHD 770', rating: 98, tier: 'High-End' },
+            { id: 'c2', name: 'AMD Ryzen 9 7950X3D', brand: 'AMD', cores: 16, threads: 32, baseClock: '4.2 GHz', boostClock: '5.7 GHz', tdp: '120W', igpu: 'Radeon Graphics', rating: 99, tier: 'High-End' },
+            { id: 'c3', name: 'Intel Core i5-13600K', brand: 'Intel', cores: 14, threads: 20, baseClock: '3.5 GHz', boostClock: '5.1 GHz', tdp: '125W', igpu: 'UHD 770', rating: 88, tier: 'Mid-Range' },
+            { id: 'c4', name: 'AMD Ryzen 5 7600X', brand: 'AMD', cores: 6, threads: 12, baseClock: '4.7 GHz', boostClock: '5.3 GHz', tdp: '105W', igpu: 'Radeon Graphics', rating: 85, tier: 'Mid-Range' },
+            { id: 'c5', name: 'Intel Core i3-12100F', brand: 'Intel', cores: 4, threads: 8, baseClock: '3.3 GHz', boostClock: '4.3 GHz', tdp: '58W', igpu: 'None', rating: 75, tier: 'Low-End' }
+        ];
+
+        const initialProducts = [
+            { id: 'p1', name: 'RTX 4090 Founders Edition', type: 'GPU', brand: 'Nvidia', condition: 'New', price: 32000000, location: 'Local', rating: 5, seller: 'Nvidia Official', sellerRating: 5.0, sellerId: 'usr_nvidia', unlisted: false, desc: 'The ultimate GPU. Unopened box with full warranty.', image: 'https://images.unsplash.com/photo-1695048065096-7a7605d865ee?auto=format&fit=crop&q=80&w=500' },
+            { id: 'p2', name: 'Used RX 6700 XT 12GB', type: 'GPU', brand: 'AMD', condition: 'Used', price: 4500000, location: 'Local', rating: 4.5, seller: 'GamerGuy99', sellerRating: 4.5, sellerId: 'usr_gamer99', unlisted: false, desc: 'Used for gaming only for 1 year, never mined. Perfect condition.', image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=500' },
+            { id: 'p3', name: 'Intel Core i9 13900K Processor', type: 'CPU', brand: 'Intel', condition: 'New', price: 9500000, location: 'Overseas', rating: 5, seller: 'GlobalTech US', sellerRating: 5.0, sellerId: 'usr_global', unlisted: false, desc: 'Brand new factory sealed. Shipped direct from overseas.', image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&q=80&w=500' },
+            { id: 'p4', name: 'AMD Ryzen 5 5600X Box', type: 'CPU', brand: 'AMD', condition: 'Used', price: 1800000, location: 'Local', rating: 4, seller: 'PCBuilderID', sellerRating: 4.0, sellerId: 'usr_pcbuilder', unlisted: false, desc: 'Upgraded system, no longer needed. Includes stock cooler.', image: 'https://images.unsplash.com/photo-1624704712411-9a7c64532b2e?auto=format&fit=crop&q=80&w=500' }
+        ];
+
+        // --- GLOBAL APP STATE ---
+        let products = JSON.parse(localStorage.getItem('tech7_products')) || initialProducts;
+        let registeredUsers = JSON.parse(localStorage.getItem('tech7_registered_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('tech7_user')) || null;
+
+        // USER-SCOPED LOCAL STATE
+        let cart = [];
+        let wishlist = [];
+        let orders = [];
+        let chatHistories = {};
+
+        let activeTab = 'home';
+        let currentModalProduct = null;
+        let currentChatProductId = null;
+        let productToDeleteId = null;
+        let isRegisterMode = false;
+        let uploadedImageDataUrl = '';
+        let editUploadedImageDataUrl = '';
+
+        // --- HELPER UNTUK MENGAMBIL & MENYIMPAN DATA ISOLASI USER ---
+        function loadUserData() {
+            if (currentUser && currentUser.uid) {
+                cart = JSON.parse(localStorage.getItem(`tech7_cart_${currentUser.uid}`)) || [];
+                wishlist = JSON.parse(localStorage.getItem(`tech7_wishlist_${currentUser.uid}`)) || [];
+                orders = JSON.parse(localStorage.getItem(`tech7_orders_${currentUser.uid}`)) || [];
+                chatHistories = JSON.parse(localStorage.getItem(`tech7_chats_${currentUser.uid}`)) || {};
+            } else {
+                cart = [];
+                wishlist = [];
+                orders = [];
+                chatHistories = {};
+            }
+        }
+
+        function saveUserData() {
+            if (currentUser && currentUser.uid) {
+                localStorage.setItem(`tech7_cart_${currentUser.uid}`, JSON.stringify(cart));
+                localStorage.setItem(`tech7_wishlist_${currentUser.uid}`, JSON.stringify(wishlist));
+                localStorage.setItem(`tech7_orders_${currentUser.uid}`, JSON.stringify(orders));
+                localStorage.setItem(`tech7_chats_${currentUser.uid}`, JSON.stringify(chatHistories));
+            }
+        }
+
+        // --- HELPER DISPLAY RATING AKUN BARU ---
+        function formatRatingText(ratingVal) {
+            if (!ratingVal || ratingVal === 0 || ratingVal === '0') {
+                return 'Belum ada review';
+            }
+            return `⭐ ${ratingVal}`;
+        }
+
+        // --- IMAGE UPLOAD LOGIC ("CARI DARI STORAGE") ---
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('Harap pilih file gambar yang valid!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedImageDataUrl = event.target.result;
+                document.getElementById('sellImagePreview').src = uploadedImageDataUrl;
+                document.getElementById('sellImageFileName').innerText = file.name;
+                document.getElementById('sellImagePreviewContainer').classList.remove('hidden');
+                document.getElementById('uploadBox').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearUploadedImage() {
+            uploadedImageDataUrl = '';
+            const input = document.getElementById('sellImageFile');
+            if (input) input.value = '';
+            const imgPreview = document.getElementById('sellImagePreview');
+            if (imgPreview) imgPreview.src = '';
+            const previewContainer = document.getElementById('sellImagePreviewContainer');
+            if (previewContainer) previewContainer.classList.add('hidden');
+            const uploadBox = document.getElementById('uploadBox');
+            if (uploadBox) uploadBox.classList.remove('hidden');
+        }
+
+        function handleEditImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('Harap pilih file gambar yang valid!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                editUploadedImageDataUrl = event.target.result;
+                document.getElementById('editImagePreview').src = editUploadedImageDataUrl;
+                document.getElementById('editImageFileName').innerText = file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- INIT APP ON LOAD ---
+        window.onload = function() {
+            loadUserData();
+            renderAuthNav();
+            renderForYou();
+            renderStore();
+            renderWishlist();
+            renderCart();
+            renderOrders();
+            populateCompareDropdowns();
+        };
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.remove('translate-y-32');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32');
+            }, 3000);
+        }
+
+        function formatIDR(val) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+        }
+
+        // --- TAB NAVIGATION ---
+        function switchTab(tabId) {
+            if (['wishlist', 'cart', 'orders', 'sell', 'profile', 'cs'].includes(tabId) && !currentUser) {
+                openAuthModal('login');
+                return;
+            }
+            activeTab = tabId;
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.tab === tabId) btn.classList.add('text-purple-400', 'font-bold');
+                else btn.classList.remove('text-purple-400', 'font-bold');
+            });
+
+            if (tabId === 'profile') renderProfile();
+            if (tabId === 'cart') renderCart();
+            if (tabId === 'wishlist') renderWishlist();
+            if (tabId === 'orders') renderOrders();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- PUBLIC SELLER PROFILE MODAL SYSTEM ---
+        function openPublicProfile(sellerName, sellerId) {
+            let sellerUser = registeredUsers.find(u => u.username === sellerName || (sellerId && u.uid === sellerId));
+            
+            const nameToDisplay = sellerUser ? sellerUser.username : sellerName;
+            const ratingToDisplay = sellerUser ? formatRatingText(sellerUser.rating) : '⭐ 5.0';
+            
+            document.getElementById('pubProfAvatar').innerText = (nameToDisplay || 'P')[0].toUpperCase();
+            document.getElementById('pubProfName').innerText = nameToDisplay;
+            document.getElementById('pubProfRating').innerText = ratingToDisplay;
+
+            // Find all active listed products by this seller
+            const sellerProds = products.filter(p => !p.unlisted && (p.seller === nameToDisplay || (sellerId && p.sellerId === sellerId)));
+            document.getElementById('pubProfCount').innerText = sellerProds.length;
+
+            const grid = document.getElementById('pubProfProductsGrid');
+            if (sellerProds.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 bg-[#121217] rounded-2xl border border-zinc-800">Penjual ini belum memiliki barang aktif yang dijual.</div>`;
+            } else {
+                grid.innerHTML = sellerProds.map(renderProductCard).join('');
+            }
+
+            const modal = document.getElementById('publicProfileModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePublicProfileModal() {
+            const modal = document.getElementById('publicProfileModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- EDIT PRODUCT LOGIC ---
+        function openEditModal(productId) {
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+
+            document.getElementById('editProductId').value = prod.id;
+            document.getElementById('editName').value = prod.name;
+            document.getElementById('editType').value = prod.type || 'CPU';
+            document.getElementById('editCondition').value = prod.condition || 'New';
+            document.getElementById('editBrand').value = prod.brand || '';
+            document.getElementById('editLocation').value = prod.location || 'Local';
+            document.getElementById('editPrice').value = prod.price || 0;
+            document.getElementById('editDesc').value = prod.desc || '';
+            
+            editUploadedImageDataUrl = prod.image || '';
+            document.getElementById('editImagePreview').src = editUploadedImageDataUrl;
+            document.getElementById('editImageFileName').innerText = prod.name;
+
+            const modal = document.getElementById('editProductModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editProductModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleEditSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('editProductId').value;
+            const idx = products.findIndex(p => p.id === id);
+            if (idx === -1) return;
+
+            products[idx].name = document.getElementById('editName').value;
+            products[idx].type = document.getElementById('editType').value;
+            products[idx].condition = document.getElementById('editCondition').value;
+            products[idx].brand = document.getElementById('editBrand').value;
+            products[idx].location = document.getElementById('editLocation').value;
+            products[idx].price = parseFloat(document.getElementById('editPrice').value);
+            products[idx].desc = document.getElementById('editDesc').value;
+            if (editUploadedImageDataUrl) {
+                products[idx].image = editUploadedImageDataUrl;
+            }
+
+            localStorage.setItem('tech7_products', JSON.stringify(products));
+            closeEditModal();
+            renderForYou();
+            renderStore();
+            renderProfile();
+            showToast('Produk berhasil diperbarui!');
+        }
+
+        // --- UNLIST / PUBLISH PRODUCT TOGGLE ---
+        function toggleUnlistProduct(productId) {
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+
+            prod.unlisted = !prod.unlisted;
+            localStorage.setItem('tech7_products', JSON.stringify(products));
+
+            renderForYou();
+            renderStore();
+            renderProfile();
+
+            if (prod.unlisted) {
+                showToast('Produk berhasil diarsipkan (Unlisted)');
+            } else {
+                showToast('Produk kembali dipublikasikan ke Store!');
+            }
+        }
+
+        // --- DELETE PRODUCT CONFIRMATION MODAL ---
+        function openDeleteConfirmModal(productId) {
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+
+            productToDeleteId = productId;
+            document.getElementById('deleteProductName').innerText = `"${prod.name}"`;
+
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteConfirmModal() {
+            productToDeleteId = null;
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmDeleteProduct() {
+            if (!productToDeleteId) return;
+
+            const idx = products.findIndex(p => p.id === productToDeleteId);
+            if (idx > -1) {
+                const deletedName = products[idx].name;
+                products.splice(idx, 1);
+                localStorage.setItem('tech7_products', JSON.stringify(products));
+
+                renderForYou();
+                renderStore();
+                renderProfile();
+                showToast(`Produk "${deletedName}" berhasil dihapus.`);
+            }
+
+            closeDeleteConfirmModal();
+        }
+
+        // --- AUTH SYSTEM (Strict Email Login Required & User Isolation) ---
+        function renderAuthNav() {
+            const area = document.getElementById('authNavArea');
+            if (currentUser) {
+                area.innerHTML = `
+                    <div class="flex items-center space-x-2 pl-2 border-l border-zinc-700">
+                        <button onclick="switchTab('profile')" class="p-2.5 bg-[#1e1e28] hover:bg-zinc-800 rounded-xl text-gray-300 transition" title="Profile"><i class="fa-solid fa-user"></i></button>
+                        <button onclick="logout()" class="p-2.5 bg-[#1e1e28] hover:bg-zinc-800 rounded-xl text-red-400 hover:text-red-300 transition" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                `;
+                document.getElementById('csUserEmail').value = currentUser.email;
+            } else {
+                area.innerHTML = `
+                    <button onclick="openAuthModal('login')" class="px-4 py-2 bg-purple-600/20 hover:bg-purple-600 text-purple-400 hover:text-white rounded-xl text-xs font-bold border border-purple-500/30 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-user"></i><span>Login / Daftar</span>
+                    </button>
+                `;
+            }
+            updateBadges();
+        }
+
+        function openAuthModal(mode) {
+            isRegisterMode = (mode === 'register');
+            document.getElementById('authModalTitle').innerText = isRegisterMode ? 'Daftar Akun Tech7' : 'Login ke Akun Tech7';
+            document.getElementById('authSubmitBtn').innerText = isRegisterMode ? 'Daftar Akun Baru' : 'Masuk ke Akun';
+            document.getElementById('authToggleText').innerText = isRegisterMode ? 'Sudah punya akun?' : 'Belum punya akun?';
+            document.getElementById('registerUsernameGroup').classList.toggle('hidden', !isRegisterMode);
+            document.getElementById('authErrorBox').classList.add('hidden');
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('authModal').classList.add('flex');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('authModal').classList.remove('flex');
+        }
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            openAuthModal(isRegisterMode ? 'register' : 'login');
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('authEmail').value.trim().toLowerCase();
+            const password = document.getElementById('authPassword').value;
+            const username = document.getElementById('authUsername').value.trim();
+            const errorBox = document.getElementById('authErrorBox');
+            const errorText = document.getElementById('authErrorText');
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput)) {
+                errorText.innerText = 'Format email tidak valid! Harus berupa nama@domain.com';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            if (password.length < 6) {
+                errorText.innerText = 'Password minimal 6 karakter!';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            if (isRegisterMode) {
+                const existingUser = registeredUsers.find(u => u.email === emailInput);
+                if (existingUser) {
+                    errorText.innerText = 'Email ini sudah terdaftar! Silakan login.';
+                    errorBox.classList.remove('hidden');
+                    return;
+                }
+
+                const newUser = {
+                    uid: 'usr_' + Date.now(),
+                    email: emailInput,
+                    username: username || emailInput.split('@')[0],
+                    password: password,
+                    rating: 0,
+                    reviewCount: 0
+                };
+
+                registeredUsers.push(newUser);
+                localStorage.setItem('tech7_registered_users', JSON.stringify(registeredUsers));
+                currentUser = newUser;
+            } else {
+                let matchedUser = registeredUsers.find(u => u.email === emailInput && u.password === password);
+                if (!matchedUser) {
+                    matchedUser = {
+                        uid: 'usr_' + Date.now(),
+                        email: emailInput,
+                        username: username || emailInput.split('@')[0],
+                        password: password,
+                        rating: 0,
+                        reviewCount: 0
+                    };
+                    registeredUsers.push(matchedUser);
+                    localStorage.setItem('tech7_registered_users', JSON.stringify(registeredUsers));
+                }
+                currentUser = matchedUser;
+            }
+
+            localStorage.setItem('tech7_user', JSON.stringify(currentUser));
+            loadUserData();
+
+            errorBox.classList.add('hidden');
+            closeAuthModal();
+            renderAuthNav();
+            renderWishlist();
+            renderCart();
+            renderOrders();
+            showToast(`Selamat datang, ${currentUser.username}!`);
+            switchTab(activeTab);
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('tech7_user');
+            loadUserData();
+            renderAuthNav();
+            renderWishlist();
+            renderCart();
+            renderOrders();
+            switchTab('home');
+            showToast('Berhasil logout');
+        }
+
+        // --- RENDER PRODUCTS & FEED ---
+        function renderProductCard(p) {
+            const isWished = wishlist.some(w => w.id === p.id);
+            const displayRating = formatRatingText(p.sellerRating || p.rating);
+
+            return `
+                <div class="bg-cardBg rounded-2xl overflow-hidden border border-zinc-800 shadow-xl hover:shadow-purple-500/20 transition group flex flex-col justify-between">
+                    <div>
+                        <div onclick="openProductModal('${p.id}')" class="h-48 bg-[#121217] relative cursor-pointer overflow-hidden">
+                            <img src="${p.image || 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x300/1e1e28/ffffff?text=Tech7+Hardware'">
+                            <div class="absolute top-2 right-2">
+                                <span class="px-2.5 py-1 text-[10px] font-bold rounded-lg ${p.condition === 'New' ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'}">
+                                    ${p.condition}
+                                </span>
+                            </div>
+                            <button onclick="event.stopPropagation(); toggleWishlist('${p.id}')" class="absolute top-2 left-2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition" title="Wishlist">
+                                <i class="fa-solid fa-heart ${isWished ? 'text-red-500' : 'text-white'}"></i>
+                            </button>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h3 onclick="openProductModal('${p.id}')" class="font-bold text-gray-100 text-sm truncate cursor-pointer hover:text-purple-400 transition" title="${p.name}">${p.name}</h3>
+                            <div class="text-purple-400 font-extrabold text-base">${formatIDR(p.price)}</div>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs text-gray-400">
+                            <span onclick="event.stopPropagation(); openPublicProfile('${p.seller}', '${p.sellerId || ''}')" class="flex items-center text-[11px] font-medium text-purple-400 hover:underline cursor-pointer">
+                                <i class="fa-solid fa-store mr-1 text-[10px]"></i> ${p.seller}
+                            </span>
+                            <span class="bg-[#121217] px-2 py-0.5 rounded text-gray-300 font-medium">${p.location}</span>
+                        </div>
+                        <button onclick="addToCart('${p.id}')" class="w-full py-2 bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-cart-plus text-xs"></i>
+                            <span>Tambah Keranjang</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderForYou() {
+            const grid = document.getElementById('forYouGrid');
+            const activeProds = products.filter(p => !p.unlisted);
+            grid.innerHTML = activeProds.map(renderProductCard).join('');
+        }
+
+        // --- PRODUCT MODAL & DETAILS ---
+        function openProductModal(id) {
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+            currentModalProduct = p;
+
+            document.getElementById('modalImg').src = p.image || 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=500';
+            document.getElementById('modalTitle').innerText = p.name;
+            document.getElementById('modalPrice').innerText = formatIDR(p.price);
+            document.getElementById('modalDesc').innerText = p.desc;
+            
+            const sellerSpan = document.getElementById('modalSeller');
+            sellerSpan.innerText = p.seller;
+            sellerSpan.className = "text-purple-400 font-semibold cursor-pointer hover:underline";
+            sellerSpan.onclick = function() {
+                closeProductModal();
+                openPublicProfile(p.seller, p.sellerId);
+            };
+
+            document.getElementById('modalRating').innerText = formatRatingText(p.sellerRating || p.rating);
+
+            document.getElementById('modalTags').innerHTML = `
+                <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded ${p.condition === 'New' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}">${p.condition}</span>
+                <span class="px-2 py-0.5 bg-zinc-800 text-gray-300 text-[10px] font-bold uppercase rounded">${p.brand}</span>
+                <span class="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-bold uppercase rounded">${p.location}</span>
+            `;
+
+            document.getElementById('productModal').classList.remove('hidden');
+            document.getElementById('productModal').classList.add('flex');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+            document.getElementById('productModal').classList.remove('flex');
+        }
+
+        // --- CHAT HISTORY MODAL SYSTEM ---
+        function openChatHistoryModal() {
+            if (!currentUser) { openAuthModal('login'); return; }
+            renderChatHistoryList();
+            const modal = document.getElementById('chatHistoryModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeChatHistoryModal() {
+            const modal = document.getElementById('chatHistoryModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function renderChatHistoryList() {
+            const container = document.getElementById('chatHistoryList');
+            const chatKeys = Object.keys(chatHistories);
+            
+            if (chatKeys.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500 bg-[#121217] rounded-2xl border border-zinc-800">
+                        <i class="fa-solid fa-comments text-4xl mb-3 text-zinc-700"></i>
+                        <p class="text-sm font-semibold text-gray-400">Belum Ada Riwayat Obrolan</p>
+                        <p class="text-xs text-zinc-500 mt-1">Klik tombol "Hubungi Penjual" pada produk untuk memulai chat.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sortedChats = chatKeys
+                .map(k => chatHistories[k])
+                .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+            container.innerHTML = sortedChats.map(c => {
+                const messages = c.messages || [];
+                const lastMsg = messages.length > 0 ? messages[messages.length - 1] : { text: 'Belum ada pesan', time: '' };
+                return `
+                    <div class="bg-[#121217] p-4 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-purple-500/40 transition">
+                        <div class="flex items-center space-x-4 flex-1 truncate">
+                            <img src="${c.productImage || 'https://placehold.co/200x200/1e1e28/ffffff?text=Tech7'}" class="w-14 h-14 object-cover rounded-xl bg-zinc-800 flex-shrink-0" onerror="this.src='https://placehold.co/200x200/1e1e28/ffffff?text=Tech7'">
+                            <div class="truncate">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-white text-sm truncate">${c.productName}</span>
+                                    <span onclick="closeChatHistoryModal(); openPublicProfile('${c.sellerName}', '');" class="text-[10px] bg-purple-600/20 text-purple-300 px-2 py-0.5 rounded-full font-semibold border border-purple-500/30 whitespace-nowrap hover:underline cursor-pointer">${c.sellerName}</span>
+                                </div>
+                                <p class="text-xs text-purple-400 font-bold mt-0.5">${formatIDR(c.productPrice)}</p>
+                                <p class="text-xs text-gray-400 truncate mt-1 flex items-center">
+                                    <i class="fa-regular fa-comment-dots mr-1.5 text-purple-400"></i>
+                                    <span class="truncate">${lastMsg.text}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2 border-t sm:border-t-0 border-zinc-800/80 pt-2 sm:pt-0">
+                            <span class="text-[10px] text-gray-500 whitespace-nowrap">${lastMsg.time || ''}</span>
+                            <button onclick="openChatFromHistory('${c.productId}')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-600/30 flex items-center space-x-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-comments text-xs"></i>
+                                <span>Buka Chat</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openChatFromHistory(productId) {
+            const c = chatHistories[productId];
+            if (!c) return;
+            closeChatHistoryModal();
+            openLiveChat(c.productId, c.productName, c.productPrice, c.productImage, c.sellerName);
+        }
+
+        function backToHistoryFromChat() {
+            closeChatModal();
+            openChatHistoryModal();
+        }
+
+        // --- SELLER LIVE CHAT SYSTEM ---
+        function contactSeller() {
+            if (!currentUser) { openAuthModal('login'); return; }
+            if (!currentModalProduct) return;
+
+            const p = currentModalProduct;
+            closeProductModal();
+            openLiveChat(p.id, p.name, p.price, p.image, p.seller);
+        }
+
+        function openLiveChat(productId, name, price, image, seller) {
+            if (!currentUser) { openAuthModal('login'); return; }
+            currentChatProductId = productId;
+
+            if (!chatHistories[productId]) {
+                chatHistories[productId] = {
+                    productId: productId,
+                    productName: name,
+                    productPrice: price,
+                    productImage: image || 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400',
+                    sellerName: seller,
+                    messages: [
+                        {
+                            sender: 'system',
+                            text: `Anda memulai obrolan dengan penjual ${seller} untuk unit "${name}".`,
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        }
+                    ],
+                    updatedAt: Date.now()
+                };
+                saveUserData();
+                updateBadges();
+            }
+
+            const chatData = chatHistories[productId];
+            const chatSellerNameEl = document.getElementById('chatSellerName');
+            chatSellerNameEl.innerText = chatData.sellerName;
+            chatSellerNameEl.onclick = function() {
+                closeChatModal();
+                openPublicProfile(chatData.sellerName, '');
+            };
+
+            document.getElementById('chatProductSubtitle').innerText = `Produk: ${chatData.productName}`;
+            document.getElementById('chatProductName').innerText = chatData.productName;
+            document.getElementById('chatProductPrice').innerText = formatIDR(chatData.productPrice);
+            document.getElementById('chatProductImg').src = chatData.productImage;
+
+            const inputEl = document.getElementById('chatInput');
+            if (chatData.messages.length <= 1) {
+                inputEl.value = `Halo ${chatData.sellerName}, apakah unit ${chatData.productName} ini masih tersedia?`;
+            } else {
+                inputEl.value = '';
+            }
+
+            renderChatMessages();
+            
+            const chatModal = document.getElementById('chatModal');
+            chatModal.classList.remove('hidden');
+            chatModal.classList.add('flex');
+        }
+
+        function closeChatModal() {
+            const chatModal = document.getElementById('chatModal');
+            chatModal.classList.add('hidden');
+            chatModal.classList.remove('flex');
+        }
+
+        function renderChatMessages() {
+            const box = document.getElementById('chatMessagesBox');
+            const chatData = chatHistories[currentChatProductId];
+            if (!chatData) return;
+
+            const messages = chatData.messages || [];
+
+            box.innerHTML = messages.map(msg => {
+                if (msg.sender === 'system') {
+                    return `
+                        <div class="text-center my-2">
+                            <span class="bg-zinc-800/80 text-gray-400 text-[10px] px-3 py-1 rounded-full border border-zinc-700/50">
+                                ${msg.text}
+                            </span>
+                        </div>
+                    `;
+                }
+
+                const isMe = msg.sender === 'me';
+                return `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="max-w-[80%] rounded-2xl p-3 text-xs ${isMe ? 'bg-purple-600 text-white rounded-tr-none' : 'bg-cardBg border border-zinc-700 text-gray-200 rounded-tl-none'} shadow">
+                            <p>${msg.text}</p>
+                            <span class="block text-[9px] ${isMe ? 'text-purple-200' : 'text-gray-400'} text-right mt-1">${msg.time}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function handleSendChatMessage(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const inputEl = document.getElementById('chatInput');
+            const text = inputEl.value.trim();
+            if (!text || !currentChatProductId) return;
+
+            const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (!chatHistories[currentChatProductId]) return;
+
+            chatHistories[currentChatProductId].messages.push({
+                sender: 'me',
+                text: text,
+                time: timeNow
+            });
+            chatHistories[currentChatProductId].updatedAt = Date.now();
+
+            saveUserData();
+            inputEl.value = '';
+            renderChatMessages();
+            updateBadges();
+
+            setTimeout(() => {
+                const replies = [
+                    `Halo! Ya, barang masih ready dan siap dikirim. Silakan diorder!`,
+                    `Siap kak! Unit mulus lengkap garansi resmi. Ada yang mau ditanyakan lagi?`,
+                    `Halo, produk dipastikan normal 100%. Bebas tes kelayakan ya kak.`
+                ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+
+                if (chatHistories[currentChatProductId]) {
+                    chatHistories[currentChatProductId].messages.push({
+                        sender: 'seller',
+                        text: randomReply,
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                    chatHistories[currentChatProductId].updatedAt = Date.now();
+                    saveUserData();
+                    renderChatMessages();
+                    updateBadges();
+                }
+            }, 1000);
+        }
+
+        // --- CART MANAGEMENT ---
+        function addToCart(productId) {
+            if (!currentUser) { openAuthModal('login'); return; }
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+
+            const existingIndex = cart.findIndex(item => item.id === productId);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty = (cart[existingIndex].qty || 1) + 1;
+            } else {
+                cart.push({
+                    ...prod,
+                    qty: 1,
+                    image: prod.image || 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=400'
+                });
+            }
+
+            saveUserData();
+            updateBadges();
+            renderCart();
+            showToast(`${prod.name} ditambahkan ke keranjang!`);
+        }
+
+        function addToCartFromModal() {
+            if (!currentModalProduct) return;
+            addToCart(currentModalProduct.id);
+            closeProductModal();
+        }
+
+        function updateCartQty(idx, change) {
+            if (cart[idx]) {
+                cart[idx].qty = (cart[idx].qty || 1) + change;
+                if (cart[idx].qty <= 0) {
+                    cart.splice(idx, 1);
+                }
+                saveUserData();
+                updateBadges();
+                renderCart();
+            }
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            saveUserData();
+            renderCart();
+            updateBadges();
+            showToast('Item berhasil dihapus dari keranjang');
+        }
+
+        function updateBadges() {
+            const wBadge = document.getElementById('wishlistBadge');
+            const cBadge = document.getElementById('cartBadge');
+            const chatBadge = document.getElementById('chatBadge');
+            
+            if (wishlist && wishlist.length > 0) { 
+                wBadge.innerText = wishlist.length; 
+                wBadge.classList.remove('hidden'); 
+            } else { 
+                wBadge.classList.add('hidden'); 
+            }
+
+            const totalCartCount = cart ? cart.reduce((total, item) => total + (item.qty || 1), 0) : 0;
+            if (totalCartCount > 0) { 
+                cBadge.innerText = totalCartCount; 
+                cBadge.classList.remove('hidden'); 
+            } else { 
+                cBadge.classList.add('hidden'); 
+            }
+
+            const chatCount = chatHistories ? Object.keys(chatHistories).length : 0;
+            if (chatBadge) {
+                if (chatCount > 0) { 
+                    chatBadge.innerText = chatCount; 
+                    chatBadge.classList.remove('hidden'); 
+                } else { 
+                    chatBadge.classList.add('hidden'); 
+                }
+            }
+        }
+
+        function renderWishlist() {
+            const grid = document.getElementById('wishlistGrid');
+            if (!wishlist || wishlist.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-500 bg-cardBg rounded-2xl border border-zinc-800">Wishlist Anda kosong. Tekan ikon hati pada produk untuk menyimpannya!</div>`;
+                return;
+            }
+            grid.innerHTML = wishlist.map(renderProductCard).join('');
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartItemsList');
+            const actions = document.getElementById('cartActions');
+            if (!cart || cart.length === 0) {
+                list.innerHTML = `<div class="text-center py-16 text-gray-500 bg-cardBg rounded-2xl border border-zinc-800">Keranjang belanja Anda kosong. Silakan jelajahi store untuk menambah produk.</div>`;
+                actions.classList.add('hidden');
+                return;
+            }
+            
+            actions.classList.remove('hidden');
+            let subtotalAll = 0;
+
+            list.innerHTML = cart.map((item, idx) => {
+                const qty = item.qty || 1;
+                const itemTotal = item.price * qty;
+                subtotalAll += itemTotal;
+
+                return `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-cardBg p-4 rounded-2xl border border-zinc-800 shadow gap-4">
+                        <div class="flex items-center space-x-4">
+                            <img src="${item.image || 'https://placehold.co/200x200/1e1e28/ffffff?text=Tech7'}" class="w-16 h-16 object-cover rounded-xl bg-[#121217]" onerror="this.src='https://placehold.co/200x200/1e1e28/ffffff?text=Tech7'">
+                            <div>
+                                <h4 class="font-bold text-white text-sm hover:text-purple-400 cursor-pointer" onclick="openProductModal('${item.id}')">${item.name}</h4>
+                                <div class="text-purple-400 font-extrabold text-sm">${formatIDR(item.price)}</div>
+                                <span class="text-[11px] text-gray-400">Region: ${item.location} • Seller: ${item.seller}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end space-x-6">
+                            <div class="flex items-center border border-zinc-700 bg-[#121217] rounded-xl overflow-hidden text-xs">
+                                <button onclick="updateCartQty(${idx}, -1)" class="px-3 py-1.5 hover:bg-zinc-800 text-gray-300 font-bold transition">-</button>
+                                <span class="px-3 py-1.5 text-white font-bold">${qty}</span>
+                                <button onclick="updateCartQty(${idx}, 1)" class="px-3 py-1.5 hover:bg-zinc-800 text-gray-300 font-bold transition">+</button>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-400">Subtotal</div>
+                                <div class="text-purple-300 font-bold text-sm">${formatIDR(itemTotal)}</div>
+                            </div>
+                            <button onclick="removeFromCart(${idx})" class="p-2 text-red-400 hover:bg-red-400/10 rounded-xl transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('') + `
+                <div class="bg-[#16161d] p-4 rounded-2xl border border-zinc-800 flex justify-between items-center text-sm font-bold text-white">
+                    <span>Total Keranjang:</span>
+                    <span class="text-purple-400 text-lg">${formatIDR(subtotalAll)}</span>
+                </div>
+            `;
+        }
+
+        // --- WISHLIST LOGIC ---
+        function toggleWishlist(id) {
+            if (!currentUser) { openAuthModal('login'); return; }
+            const idx = wishlist.findIndex(item => item.id === id);
+            if (idx > -1) {
+                wishlist.splice(idx, 1);
+                showToast('Dihapus dari wishlist');
+            } else {
+                const prod = products.find(p => p.id === id);
+                if (prod) wishlist.push(prod);
+                showToast('Ditambahkan ke wishlist (❤️)');
+            }
+            saveUserData();
+            updateBadges();
+            renderWishlist();
+            renderForYou();
+            renderStore();
+        }
+
+        // --- STORE FILTERING & SEARCH ---
+        function applyFilters() {
+            const condition = document.getElementById('filterCondition').value;
+            const type = document.getElementById('filterType').value;
+            const brand = document.getElementById('filterBrand').value;
+            const location = document.getElementById('filterLocation').value;
+            const minRating = parseFloat(document.getElementById('filterRating').value) || 0;
+            const maxBudget = parseFloat(document.getElementById('filterBudget').value) || Infinity;
+            const query = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = products.filter(p => {
+                if (p.unlisted) return false;
+                if (condition && p.condition !== condition) return false;
+                if (type && p.type !== type) return false;
+                if (brand && p.brand !== brand) return false;
+                if (location && p.location !== location) return false;
+                if (p.rating < minRating) return false;
+                if (p.price > maxBudget) return false;
+                if (query && !p.name.toLowerCase().includes(query) && !p.seller.toLowerCase().includes(query)) return false;
+                return true;
+            });
+
+            document.getElementById('storeCount').innerText = `Menampilkan ${filtered.length} produk`;
+            const grid = document.getElementById('storeGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-500 bg-cardBg rounded-2xl border border-zinc-800">Tidak ada produk yang sesuai dengan filter Anda.</div>`;
+            } else {
+                grid.innerHTML = filtered.map(renderProductCard).join('');
+            }
+        }
+
+        function renderStore() {
+            applyFilters();
+        }
+
+        function filterByCategory(type, brand) {
+            document.getElementById('filterType').value = type;
+            document.getElementById('filterBrand').value = brand;
+            switchTab('store');
+            applyFilters();
+        }
+
+        function filterByCondition(cond) {
+            document.getElementById('filterCondition').value = cond;
+            switchTab('store');
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterCondition').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterBrand').value = '';
+            document.getElementById('filterLocation').value = '';
+            document.getElementById('filterRating').value = '0';
+            document.getElementById('filterBudget').value = '';
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        function handleSearch(val) {
+            if (activeTab !== 'store') switchTab('store');
+            applyFilters();
+        }
+
+        // --- CHECKOUT & ORDERS ---
+        function proceedToCheckout() {
+            if (!cart || cart.length === 0) return;
+            switchTab('checkout');
+
+            const isOverseas = cart.some(item => item.location === 'Overseas');
+            const shippingSelect = document.getElementById('checkoutShipping');
+            const paymentSelect = document.getElementById('checkoutPayment');
+
+            if (isOverseas) {
+                shippingSelect.innerHTML = `<option value="eBay Global Shipping">eBay Global Shipping (Est. 7-14 hari, termasuk bea cukai)</option>`;
+                paymentSelect.innerHTML = `<option value="PayPal">PayPal (Wajib untuk transaksi luar negeri)</option>`;
+            } else {
+                shippingSelect.innerHTML = `
+                    <option value="JNT">J&T Express (Est. 2-3 hari)</option>
+                    <option value="JNE">JNE Regular (Est. 2-3 hari)</option>
+                    <option value="AnterAja">AnterAja (Est. 1-2 hari)</option>
+                    <option value="SiCepatExpress">SiCepat Express (Est. 1-2 hari)</option>
+                `;
+                paymentSelect.innerHTML = `
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Bank Transfer">Bank Transfer (BCA/Mandiri/BNI)</option>
+                    <option value="GoPay">GoPay</option>
+                    <option value="PayPal">PayPal</option>
+                `;
+            }
+
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0);
+            const tax = isOverseas ? 500000 : 0;
+            const total = subtotal + tax;
+
+            document.getElementById('checkoutSummaryBox').innerHTML = `
+                <div class="flex justify-between"><span>Subtotal Produk:</span><span>${formatIDR(subtotal)}</span></div>
+                ${isOverseas ? `<div class="flex justify-between text-orange-400"><span>Bea Cukai Luar Negeri:</span><span>${formatIDR(tax)}</span></div>` : ''}
+                <div class="flex justify-between text-white font-bold text-sm pt-2 border-t border-zinc-700"><span>Total Pembayaran:</span><span>${formatIDR(total)}</span></div>
+            `;
+        }
+
+        function completeCheckout(e) {
+            e.preventDefault();
+            const isOverseas = cart.some(item => item.location === 'Overseas');
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0);
+            const tax = isOverseas ? 500000 : 0;
+
+            const order = {
+                id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+                items: JSON.parse(JSON.stringify(cart)),
+                total: subtotal + tax,
+                address: document.getElementById('checkoutAddress').value,
+                shipping: document.getElementById('checkoutShipping').value,
+                payment: document.getElementById('checkoutPayment').value,
+                date: new Date().toLocaleString(),
+                status: 'Processing / Dikemas'
+            };
+
+            orders.unshift(order);
+            cart = [];
+            saveUserData();
+            updateBadges();
+            renderOrders();
+            renderCart();
+            switchTab('orders');
+            showToast('Pesanan berhasil dicheckout!');
+        }
+
+        function renderOrders() {
+            const list = document.getElementById('ordersList');
+            if (!orders || orders.length === 0) {
+                list.innerHTML = `<div class="text-center py-16 text-gray-500 bg-cardBg rounded-2xl border border-zinc-800">Belum ada pesanan / invoice.</div>`;
+                return;
+            }
+            list.innerHTML = orders.map(ord => `
+                <div class="bg-cardBg rounded-2xl border border-zinc-800 overflow-hidden shadow-xl">
+                    <div class="bg-[#121217] p-4 border-b border-zinc-800 flex flex-wrap justify-between items-center gap-2 text-xs">
+                        <div>
+                            <span class="text-gray-400">Invoice: <strong class="text-white font-mono">${ord.id}</strong></span>
+                            <span class="text-gray-500 ml-3">${ord.date}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="px-3 py-1 bg-green-500/20 text-green-400 rounded-full font-bold"><i class="fa-solid fa-check-circle mr-1"></i> ${ord.status}</span>
+                            <span class="text-white font-bold text-sm">${formatIDR(ord.total)}</span>
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-4 text-xs text-gray-300">
+                        <div class="bg-[#121217] p-3 rounded-xl border border-zinc-800 space-y-1">
+                            <p>💳 Pembayaran: <strong class="text-white">${ord.payment}</strong></p>
+                            <p>🚚 Pengiriman: <strong class="text-white">${ord.shipping}</strong></p>
+                            <p>📍 Alamat: <strong class="text-white">${ord.address}</strong></p>
+                        </div>
+                        <div class="space-y-2">
+                            <span class="font-bold text-gray-400 uppercase tracking-wider text-[10px]">Produk Dipesan</span>
+                            ${ord.items.map(i => `
+                                <div class="flex justify-between items-center border-b border-zinc-800/60 pb-2">
+                                    <span class="text-white font-medium">${i.name} (${i.qty || 1}x)</span>
+                                    <span class="text-purple-400 font-semibold">${formatIDR(i.price * (i.qty || 1))}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- SELL ITEM FORM ---
+        function handleSellSubmit(e) {
+            e.preventDefault();
+            if (!currentUser) { openAuthModal('login'); return; }
+
+            const userRating = currentUser.rating || 0;
+
+            const newProd = {
+                id: 'p_' + Date.now(),
+                name: document.getElementById('sellName').value,
+                type: document.getElementById('sellType').value,
+                condition: document.getElementById('sellCondition').value,
+                brand: document.getElementById('sellBrand').value,
+                location: document.getElementById('sellLocation').value,
+                price: parseFloat(document.getElementById('sellPrice').value),
+                image: uploadedImageDataUrl || 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=500',
+                desc: document.getElementById('sellDesc').value,
+                rating: userRating,
+                seller: currentUser.username,
+                sellerRating: userRating,
+                sellerId: currentUser.uid,
+                unlisted: false
+            };
+
+            products.unshift(newProd);
+            localStorage.setItem('tech7_products', JSON.stringify(products));
+
+            renderForYou();
+            renderStore();
+            renderProfile();
+            document.getElementById('sellForm').reset();
+            clearUploadedImage();
+            switchTab('profile');
+            showToast('Produk berhasil diposting online!');
+        }
+
+        // --- RENDER PROFILE & SELLER MANAGEMENT SUITE ---
+        function renderProfile() {
+            if (!currentUser) return;
+            document.getElementById('profileEmail').innerText = currentUser.email;
+            document.getElementById('profileAvatar').innerText = (currentUser.username || 'U')[0].toUpperCase();
+            
+            const ratingBadge = document.getElementById('profileRatingBadge');
+            if (!currentUser.rating || currentUser.rating === 0) {
+                ratingBadge.innerHTML = `<i class="fa-solid fa-star text-yellow-400 mr-1"></i> Belum ada review`;
+            } else {
+                ratingBadge.innerHTML = `<i class="fa-solid fa-star text-yellow-400 mr-1"></i> ${currentUser.rating} Rating Seller`;
+            }
+
+            const myProds = products.filter(p => p.seller === currentUser.username || p.sellerId === currentUser.uid);
+            document.getElementById('profileItemCount').innerText = myProds.length;
+            
+            const grid = document.getElementById('profileProductsGrid');
+            if (myProds.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 bg-cardBg rounded-2xl border border-zinc-800">Anda belum memposting produk apapun.</div>`;
+            } else {
+                grid.innerHTML = myProds.map(p => `
+                    <div class="bg-cardBg rounded-2xl overflow-hidden border border-zinc-800 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="h-40 bg-[#121217] relative">
+                                <img src="${p.image || 'https://placehold.co/400x300/1e1e28/ffffff?text=Tech7'}" class="w-full h-full object-cover">
+                                <div class="absolute top-2 right-2 flex space-x-1">
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded ${p.unlisted ? 'bg-zinc-700 text-gray-300' : 'bg-green-600 text-white'}">
+                                        ${p.unlisted ? 'Arsip / Unlisted' : 'Aktif / Publik'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4 space-y-1">
+                                <h4 class="font-bold text-white text-sm truncate">${p.name}</h4>
+                                <div class="text-purple-400 font-extrabold text-sm">${formatIDR(p.price)}</div>
+                            </div>
+                        </div>
+                        <div class="p-4 pt-0 grid grid-cols-3 gap-2 text-xs">
+                            <button onclick="toggleUnlistProduct('${p.id}')" class="py-2 bg-zinc-800 hover:bg-zinc-700 text-gray-300 rounded-xl font-medium transition text-[11px] flex items-center justify-center">
+                                <i class="fa-solid ${p.unlisted ? 'fa-eye' : 'fa-eye-slash'} mr-1"></i> ${p.unlisted ? 'Publik' : 'Arsip'}
+                            </button>
+                            <button onclick="openEditModal('${p.id}')" class="py-2 bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white rounded-xl font-medium border border-purple-500/30 transition text-[11px] flex items-center justify-center">
+                                <i class="fa-solid fa-pen mr-1"></i> Edit
+                            </button>
+                            <button onclick="openDeleteConfirmModal('${p.id}')" class="py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-xl font-medium transition text-[11px] flex items-center justify-center">
+                                <i class="fa-solid fa-trash mr-1"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- CPU BENCHMARK COMPARISON ---
+        function populateCompareDropdowns() {
+            const opts = `<option value="">-- Choose Processor --</option>` + CPUS.map(c => `<option value="${c.id}">${c.name} (${c.tier})</option>`).join('');
+            document.getElementById('compare1').innerHTML = opts;
+            document.getElementById('compare2').innerHTML = opts;
+        }
+
+        function updateComparison() {
+            const id1 = document.getElementById('compare1').value;
+            const id2 = document.getElementById('compare2').value;
+
+            renderCpuCard('details1', CPUS.find(c => c.id === id1));
+            renderCpuCard('details2', CPUS.find(c => c.id === id2));
+        }
+
+        function renderCpuCard(containerId, cpu) {
+            const el = document.getElementById(containerId);
+            if (!cpu) {
+                el.innerHTML = `<p class="text-zinc-500 text-xs text-center py-10">Select a CPU to view benchmark data</p>`;
+                return;
+            }
+            el.innerHTML = `
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Processor Name</span><strong class="text-white">${cpu.name}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Brand</span><strong class="text-white">${cpu.brand}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Cores</span><strong class="text-white">${cpu.cores}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Threads</span><strong class="text-white">${cpu.threads}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Base Clock</span><strong class="text-white">${cpu.baseClock}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Boost Clock</span><strong class="text-white">${cpu.boostClock}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Power Consumption (TDP)</span><strong class="text-white">${cpu.tdp}</strong></div>
+                    <div class="flex justify-between border-b border-zinc-800 pb-2"><span class="text-gray-400">Integrated Graphics</span><strong class="text-white">${cpu.igpu}</strong></div>
+                    <div class="flex justify-between pt-1"><span class="text-purple-400 font-bold">Overall Rating</span><span class="px-2 py-0.5 bg-purple-600 text-white font-extrabold rounded">${cpu.rating} / 100</span></div>
+                </div>
+            `;
+        }
+
+        // --- CUSTOMER SERVICE ---
+        function submitCS(e) {
+            e.preventDefault();
+            showToast('Keluhan berhasil dikirim ke email admin Tech7!');
+            document.getElementById('csSubject').value = '';
+            document.getElementById('csMessage').value = '';
+            switchTab('home');
+        }
+    </script>
+</body>
+</html>
